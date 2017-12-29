@@ -339,84 +339,50 @@ label.switch-caption {
 }
 
 .advanced-content {
-  transition: opacity .4s ease-in-out;
+  max-height: 250px;
+  overflow: hidden;
+  transition: max-height .4s ease-in-out;
   &[disabled] {
-    opacity: .3;
-    pointer-events: none;
+    max-height: 0;
+  }
+  .transaction-fee, .min-rate{
+    margin: 0 auto;
+    label{
+      text-align: left;
+      margin-top: 11px;
+    }
+    @include breakpoint(medium){
+      label{
+        text-align: right;
+      }
+      -moz-transform: translateX(-80px);
+      -webkit-transform: translateX(-80px);
+      transform: translateX(-80px);
+    }
   }
   .transaction-fee {
-    .symbol {
-      line-height: 40px;
-      text-align: center;
-    }
     .result {
       line-height: 40px;
-      text-align: center;
+      text-align: left;
       display: block;
       color: $medium-gray;
       font-weight: bold;
       font-family: $font-family-monospace;
-      font-size: 14px;
+      font-size: 12px;
       white-space: nowrap;
-      &:before {
-        content: '= ';
-      }
     }
     @include breakpoint(medium) {
-      .gas-limit,
-      .gas-price {
-        width: 35%;
-        float: left;
-      }
-      .symbol {
-        width: 5%;
-        float: left;
-      }
       .result {
         width: 25%;
         float: left;
         text-align: right;
       }
     }
-    .gas-limit {
-      position: relative;
-      &:before {
-        content: 'Gas Limit';
-        position: absolute;
-        left: 12px;
-        top: 13px;
-        white-space: nowrap;
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-        text-align: left;
-      }
-      input {
-        width: 100%;
-        padding-left: 80px;
-        text-align: right;
-        margin: 0;
-        &[readonly] {
-          background-color: darken(white, 5)
-        }
-      }
-    }
     .gas-price {
       position: relative;
-      &:before {
-        content: 'Gas Price';
+      .unit {
         position: absolute;
-        left: 12px;
-        top: 13px;
-        white-space: nowrap;
-        font-size: 11px;
-        font-weight: bold;
-        text-transform: uppercase;
-      }
-      &:after {
-        content: 'gwei';
-        position: absolute;
-        right: 12px;
+        right: 30px;
         top: 13px;
         white-space: nowrap;
         font-size: 11px;
@@ -425,11 +391,12 @@ label.switch-caption {
       }
       input {
         width: 100%;
-        padding-left: 80px;
+        padding-left: 20px;
         padding-right: 45px;
-        text-align: right;
+        text-align: left;
         margin: 0;      
       }
     }
   }
+  
 }
