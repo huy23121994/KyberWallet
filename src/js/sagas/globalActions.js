@@ -3,12 +3,14 @@ import * as actions from '../actions/globalActions'
 import * as actionsExchange from '../actions/exchangeActions'
 import * as actionsUtils from '../actions/utilActions'
 import { closeImportLoading } from '../actions/accountActions'
+import { reconnectWS } from '../actions/connectionActions'
 import { Rate } from "../services/rate"
 import { push } from 'react-router-redux';
 import { addTranslationForLanguage, setActiveLanguage, getActiveLanguage } from 'react-localize-redux';
 
 import { getLanguage } from "../services/language"
 import Language from "../../../lang"
+import { store } from '../store'
 
 export function* getLatestBlock(action) {
   const ethereum = action.payload
@@ -18,12 +20,15 @@ export function* getLatestBlock(action) {
 
 export function* updateHistoryExchange(action) {
   const { ethereum, page, itemPerPage, isAutoFetch } = action.payload
-  var latestBlock = yield call(ethereum.call("getLatestBlock"))
-  const newLogs = yield call(ethereum.call("getLogOneColumn"), page, itemPerPage)
-  yield put(actions.updateHistory(newLogs, latestBlock, page, isAutoFetch))
+  if(wsIsConnected()){
+    yield call(getWsData, 'GET_LOGS_HISTORY')
+  }else{
+    yield put(reconnectWS())
+    var latestBlock = yield call(ethereum.call("getLatestBlock"))
+    const newLogs = yield call(ethereum.call("getLogOneColumn"), page, itemPerPage)
+    yield put(actions.updateHistory(newLogs, latestBlock, page, isAutoFetch))
+  }
 }
-
-
 
 export function* goToRoute(action) {
   yield put(push(action.payload));
@@ -34,14 +39,54 @@ export function* clearSession(action) {
   yield put(actions.goToRoute('/'));
 }
 
+function getWsData(msg) {
+  const ws = store.getState().connection.ws
+  ws.send(msg)
+  ws.onmessage = (res) => {
+    let data = JSON.parse(res.data)
+    console.log(data);
+    switch(data[0]){
+      case 'GET_RATE': {
+        store.dispatch(actions.updateAllRateComplete(data[1]))
+        break
+      }
+      case 'GET_RATE_USD': {
+        store.dispatch(actions.updateAllRateUSDComplete(data[1]))
+        break
+      }
+      case 'GET_LOGS_HISTORY': {
+        store.dispatch(actions.updateHistory(data[1]))
+        break
+      }
+    }
+  }
+  ws.onerror = (err) => {
+    console.log(err)
+  }
+
+}
+
+function wsIsConnected() {
+  const ws = store.getState().connection.ws
+  return ws.readyState == WebSocket.OPEN
+}
+
 export function* updateAllRate(action) {
   const { ethereum, tokens } = action.payload
   try {
-    const rates = yield call([ethereum, ethereum.call("getAllRatesFromServer")], tokens)
-    yield put(actions.updateAllRateComplete(rates))
+    if(wsIsConnected()){
+      yield call(getWsData, 'GET_RATE')
+    }else{
+      yield put(reconnectWS())
+      console.log('server')
+      let rates = yield call([ethereum, ethereum.call("getAllRatesFromServer")], tokens)
+      yield put(actions.updateAllRateComplete(rates))
+    }
+    
   }
   catch (err) {
     //get rate from blockchain
+    console.log('blockchain')
     try {
       const rates = yield call([ethereum, ethereum.call("getAllRatesFromBlockchain")], tokens)
       yield put(actions.updateAllRateComplete(rates))
@@ -55,8 +100,13 @@ export function* updateAllRate(action) {
 export function* updateRateUSD(action) {
   const { ethereum, tokens } = action.payload
   try {
-    const rates = yield call([ethereum, ethereum.call("getAllRatesUSDFromServer")], tokens)
-    yield put(actions.updateAllRateUSDComplete(rates))
+    if(wsIsConnected()){
+      yield call(getWsData, 'GET_RATE_USD')
+    }else{
+      yield put(reconnectWS())
+      let rates = yield call([ethereum, ethereum.call("getAllRatesUSDFromServer")], tokens)
+      yield put(actions.updateAllRateUSDComplete(rates))
+    }
     yield put(actions.showBalanceUSD())
   }
   catch (err) {

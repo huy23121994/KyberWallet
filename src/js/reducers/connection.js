@@ -1,4 +1,6 @@
+let newWs = () => new WebSocket('ws://localhost:3002')
 const initState = {
+  ws: newWs()
 }
 
 const connection = (state=initState, action) => {
@@ -12,6 +14,14 @@ const connection = (state=initState, action) => {
       var oldState = {...state}
       clearInterval(oldState.intervalConn)
       return {...state, interval: null}
+    case "CONN.RECONNECT_WS": 
+      try {
+        let ws = newWs()
+        return {...state, ws: newWs()}
+      } catch (error) {
+        console.log(error)
+      }
+      
   }
   return state
 }

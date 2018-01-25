@@ -10,7 +10,7 @@
     ],
     "ws": "wss://kovan.kyber.network/ws/"
   },
-  "history_endpoint": "https://cache.kyber.network",
+  "history_endpoint": "http://0.0.0.0:3001",
   "api_usd":"https://api.coinmarketcap.com",
   "tokens": {
     "ETH": {

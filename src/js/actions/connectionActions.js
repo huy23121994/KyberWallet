@@ -12,6 +12,11 @@ export function setIntervalConnection(intervalConnection){
     }
 }
 
+export function reconnectWS(){
+    return {
+        type: "CONN.RECONNECT_WS",
+    }
+}
 
 export function clearIntervalConnection(intervalConnection){
     return {

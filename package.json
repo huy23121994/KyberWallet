@@ -55,7 +55,7 @@
     "web3": "^1.0.0-beta.18",
     "web3-providers-ws": "^1.0.0-beta.28",
     "webpack-dev-server": "^2.9.7",
-    "websocket": "^1.0.25"
+    "ws": "^4.0.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -97,7 +97,8 @@
     "ropsten": "webpack-dev-server --content-base src --inline --hot --history-api-fallback --host 0.0.0.0 --port 3000 --env.chain=ropsten --env.logger=true",
     "dev": "webpack-dev-server --content-base src --inline --hot --history-api-fallback --host 0.0.0.0 --port 3000 --env.chain=ropsten --env.logger=true",
     "test": "jest --setupTestFrameworkScriptFile=raf/polyfill",
-    "server": "node server/server_http.js"
+    "server": "node server/server_http.js",
+    "server_ws": "node server/server_ws.js"
   },
   "jest": {
     "globals": {
